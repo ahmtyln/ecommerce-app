@@ -6,14 +6,14 @@ import ProductItem from "../components/ProductItem";
 
 const Collection = () => {
 
-  const {products, search} = useContext(ShopContext);
+  const {products, search, showSearch} = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState('relevant')
 
-  console.log(search)
+
 
   const toggleCategory = (e) => {
     if(category.includes(e.target.value)){
@@ -31,48 +31,96 @@ const Collection = () => {
     }
   }
 
-const applyFilter = () =>{
 
-  let productsCopy = products.slice();
+
+
+  const applyAndSortProducts = () => {
+    let productsCopy = products.slice();
+
+    if(showSearch && search) {
+      productsCopy = productsCopy.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
+    }
+
+    // Apply filters
+    if (category.length > 0) {
+      productsCopy = productsCopy.filter((item) =>
+        category.includes(item.category)
+      );
+    }
+    if (subCategory.length > 0) {
+      productsCopy = productsCopy.filter((item) =>
+        subCategory.includes(item.subCategory)
+      );
+    }
+
+    // Sort products
+    switch (sortType) {
+      case "low-high":
+        productsCopy.sort((a, b) => a.price - b.price);
+        break;
+      case "high-low":
+        productsCopy.sort((a, b) => b.price - a.price);
+        break;
+      default:
+        // relevant (or default sort)
+        break;
+    }
+
+    setFilterProducts(productsCopy);
+  };
+
+  // Re-run filtering and sorting whenever category, subCategory, or sortType changes
+  useEffect(() => {
+    applyAndSortProducts();
+  }, [category, subCategory, sortType, products,search,showSearch]);
+
+
+
+
+// const applyFilter = () =>{
+
+//   let productsCopy = products.slice();
  
 
-  if(category.length > 0) {
-    productsCopy = productsCopy.filter(item => category.includes(item.category))
-  }
-  if(subCategory.length > 0) {
-    productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
-  }
+//   if(category.length > 0) {
+//     productsCopy = productsCopy.filter(item => category.includes(item.category))
+//   }
+//   if(subCategory.length > 0) {
+//     productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
+//   }
 
-  setFilterProducts(productsCopy);
+//   setFilterProducts(productsCopy);
   
-}
-
-const sortProduct = () =>{
-  let fpCopy = filterProducts.slice();
-
-  switch(sortType){
-    case 'low-high' :
-      setFilterProducts(fpCopy.sort((a,b) =>(a.price-b.price)));
-      break;
-
-    case 'high-low' :
-      setFilterProducts(fpCopy.sort((a,b) => (b.price-a.price)));
-      break;
-
-    default:
-      applyFilter();
-      break;
-  }
-}
+// }
 
 
-  useEffect(() => {
-    sortProduct();
-  },[sortType])
+// const sortProduct = () =>{
+//   let fpCopy = filterProducts.slice();
 
-  useEffect(() => {
-    applyFilter();
-  },[category, subCategory]) 
+//   switch(sortType){
+//     case 'low-high' :
+//       setFilterProducts(fpCopy.sort((a,b) =>(a.price-b.price)));
+//       break;
+
+//     case 'high-low' :
+//       setFilterProducts(fpCopy.sort((a,b) => (b.price-a.price)));
+//       break;
+
+//     default:
+//       applyFilter();
+//       break;
+//   }
+// }
+
+//   useEffect(() => {
+//     applyFilter();
+//   },[category, subCategory]) 
+
+//   useEffect(() => {
+//     sortProduct();
+//   },[sortType,])
+
+
 
 
 
